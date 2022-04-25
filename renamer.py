@@ -19,8 +19,15 @@ def main():
     epNum = 1
     
     for each_file in files:
-
+        
+        if os.path.isdir(each_file):
+            
+            print("\"" + each_file + "\"", "is a directory.")
+            
+            continue
+        
         print(each_file)    # Done in a loop for nicer formatting
+        
         os.rename(each_file, renamed + " Episode " + str(epNum) + fileType)   # Rename instead of Replace so program stops if it tries to replace itself
         epNum += 1
 
