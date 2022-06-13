@@ -26,7 +26,7 @@ def main():
             
             continue
         
-        print(each_file)    # Done in a loop for nicer formatting
+        print("\n" + each_file , "is being renamed to: " + renamed + " Episode " + str(epNum) + fileType)    # Done in a loop for nicer formatting
         
         os.rename(each_file, renamed + " Episode " + str(epNum) + fileType)   # Rename instead of Replace so program stops if it tries to replace itself
         epNum += 1
