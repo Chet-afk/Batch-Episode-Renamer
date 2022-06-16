@@ -17,7 +17,6 @@ def main():
     renamed = input("What would you like to rename the files to?: ").strip()
     fileType = input("What is the file extension? (i.e .mkv, .mp4): ").strip()
     epNum = 1
-    
     for each_file in files:
         
         if os.path.isdir(each_file):
@@ -26,9 +25,9 @@ def main():
             
             continue
         
-        print("\n" + each_file , "is being renamed to: " + renamed + " Episode " + str(epNum) + fileType)    # Done in a loop for nicer formatting
+        print("\n" + each_file , "is being renamed to: " + renamed + " Episode " + str(epNum).zfill(2) + fileType)    # Done in a loop for nicer formatting
         
-        os.rename(each_file, renamed + " Episode " + str(epNum) + fileType)   # Rename instead of Replace so program stops if it tries to replace itself
+        os.rename(each_file, renamed + " Episode " + str(epNum).zfill(2) + fileType)   # Rename instead of Replace so program stops if it tries to replace itself
         epNum += 1
 
 
