@@ -1,34 +1,85 @@
 import os
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import QIcon
+
+
+class main_window(QMainWindow):
+
+    def __init__(self):
+        super(main_window, self).__init__()
+
+        # Create variables for filepaths, combobox choices etc.
+        self.file_path = ""
+        self.rename_type = 1
+        self.start_number = 1
+
+        self.setWindowTitle("Batch Renamer")
+
+        self.setGeometry(800, 800, 800, 800)
+
+        central_widget = QWidget()  # Must have central widget set
+        central_widget.setLayout(self.create_vlayout())
+
+        self.setCentralWidget(central_widget)
+
+        self.show()
+
+
+    def create_vlayout(self):   # Creates the interactions in central widget
+        vbox = QVBoxLayout(self)
+        vbox.addWidget(self.create_buttons())
+        vbox.addWidget(self.create_input())
+        return vbox
+
+    def create_buttons(self):
+        btn = QPushButton("Rename Files", self)
+        #btn.move(200, 200)
+        btn.clicked.connect(self.rename_click) # Connect button to begin renaming.
+        return btn
+
+    def create_input(self):
+        directory_field = QLineEdit(self)
+        directory_field.setPlaceholderText("Enter absolute filepath")
+        directory_field.setClearButtonEnabled(True)
+        #directory_field.move(100,100)
+        return directory_field
+
+    def rename_click(self):
+        file_path = input("Please enter file path: ")
+        os.chdir(file_path)
+        cwd = os.getcwd()
+
+        print("\nCurrent Directory: " + cwd + "\n")
+
+        files = os.listdir(".")
+
+        renamed = input("What would you like to rename the files to?: ").strip()
+
+        fileType = input("What is the file extension? (i.e .mkv, .mp4): ").strip()
+
+        epNum = 1
+
+        for each_file in files:
+
+            if os.path.isdir(each_file):
+                print("\"" + each_file + "\"", "is a directory.")
+
+                continue
+
+            print("\n" + each_file, "is being renamed to: " + renamed + " Episode " + str(epNum).zfill(
+                2) + fileType)  # .zfill puts it to at least 2 digits for single digits
+
+            os.rename(each_file, renamed + " Episode " + str(epNum).zfill(
+                2) + fileType)  # Rename instead of Replace so program stops if it tries to replace itself
+            epNum += 1
+
 
 def main():
-    
-    
-    filePath = input("Please enter file path: ")
+    app = QApplication([])
+    window = main_window()
+    window.show()
+    app.exec_()
 
 
-    os.chdir(filePath)
-    cwd = os.getcwd()
-    
-    print("\nCurrent Directory: " + cwd + "\n")
-
-    files = os.listdir(".")
-
-    
-    renamed = input("What would you like to rename the files to?: ").strip()
-    fileType = input("What is the file extension? (i.e .mkv, .mp4): ").strip()
-    epNum = 1
-    for each_file in files:
-        
-        if os.path.isdir(each_file):
-            
-            print("\"" + each_file + "\"", "is a directory.")
-            
-            continue
-        
-        print("\n" + each_file , "is being renamed to: " + renamed + " Episode " + str(epNum).zfill(2) + fileType)    # Done in a loop for nicer formatting
-        
-        os.rename(each_file, renamed + " Episode " + str(epNum).zfill(2) + fileType)   # Rename instead of Replace so program stops if it tries to replace itself
-        epNum += 1
-
-
-main()
+if __name__ == "__main__":
+    main()
