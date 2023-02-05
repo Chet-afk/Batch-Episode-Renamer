@@ -1,6 +1,8 @@
 import os
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 
 
 class main_window(QMainWindow):
@@ -13,9 +15,11 @@ class main_window(QMainWindow):
         self.rename_type = 1
         self.start_number = 1
 
+        self.file_label = QLabel()
+
         self.setWindowTitle("Batch Renamer")
 
-        self.setGeometry(800, 800, 800, 800)
+        self.setGeometry(0, 0, 1280, 720)
 
         central_widget = QWidget()  # Must have central widget set
         central_widget.setLayout(self.create_vlayout())
@@ -27,22 +31,42 @@ class main_window(QMainWindow):
 
     def create_vlayout(self):   # Creates the interactions in central widget
         vbox = QVBoxLayout(self)
-        vbox.addWidget(self.create_buttons())
-        vbox.addWidget(self.create_input())
+        vbox.addLayout(self.choose_folder())
+        vbox.addWidget(self.output_log())
         return vbox
 
-    def create_buttons(self):
-        btn = QPushButton("Rename Files", self)
-        #btn.move(200, 200)
-        btn.clicked.connect(self.rename_click) # Connect button to begin renaming.
-        return btn
+    def choose_folder(self):
+        hbox = QHBoxLayout()
 
-    def create_input(self):
-        directory_field = QLineEdit(self)
-        directory_field.setPlaceholderText("Enter absolute filepath")
-        directory_field.setClearButtonEnabled(True)
-        #directory_field.move(100,100)
-        return directory_field
+        btn = QPushButton("Choose Folder", self)
+        btn.clicked.connect(self.select_directory) # Connect button to begin renaming.
+        btn.setMaximumWidth(100)
+
+        font = QFont()
+        font.setFamily("Serif")
+        font.setBold(True)
+        font.setPointSize(12)
+
+        self.file_label.setFont(font)
+        self.file_label.setText("No Folder Chosen")
+
+        hbox.addWidget(btn)
+        hbox.addWidget(self.file_label)
+
+        return hbox
+
+    def output_log(self):
+        output_field = QTextEdit()
+        output_field.setReadOnly(True)
+        output_field.setLineWrapColumnOrWidth(True)
+        return output_field
+
+    def select_directory(self):
+        directory = QFileDialog.getExistingDirectory(self, "Select Directory")
+        if not (directory == ""):
+            self.file_path = directory
+            self.file_label.setText(directory)
+
 
     def rename_click(self):
         file_path = input("Please enter file path: ")
