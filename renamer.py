@@ -13,6 +13,7 @@ class main_window(QMainWindow):
         self.file_path = ""
         self.rename_type = QComboBox()
         self.start_number = 1
+        self.show_name = QLineEdit()
 
         self.season_pick_label = QLabel("What Season is this?")
         self.season_pick = QSpinBox()
@@ -78,6 +79,9 @@ class main_window(QMainWindow):
 
         vbox_settings.addWidget(title)
         vbox_settings.addLayout(self.choose_rename_type())
+        vbox_settings.addSpacing(10)
+        vbox_settings.addLayout(self.rename_to())
+
 
         return vbox_settings
 
@@ -86,9 +90,8 @@ class main_window(QMainWindow):
         # 1 is sequential starting from 1. i.e. Episode 1 etc.
         hbox = QHBoxLayout()
 
-        rename_label = QLabel()
+        rename_label = QLabel("Rename Scheme: ")
         rename_label.setFont(QFont("Serif", 10))
-        rename_label.setText("Rename Scheme: ")
 
         self.rename_type.addItem("Seasonal [SxxEyy]")
         self.rename_type.addItem("Sequential [Episode X]")
@@ -104,9 +107,22 @@ class main_window(QMainWindow):
 
         return hbox
 
+    def rename_to(self):
+        # Layout for entering the show name
+        hbox = QHBoxLayout()
+
+        show_name_label = QLabel("Enter the show name:")
+        show_name_label.setFont(QFont("Serif", 10))
+        self.show_name.setPlaceholderText("E.g. Overlord, Gravity Falls, Wednesday, etc.")
+
+        hbox.addWidget(show_name_label)
+        hbox.addWidget(self.show_name)
+
+        return hbox
 
 
     def horizontal_line(self):
+        # Create a horizontal line separator
         h_line = QFrame()
         h_line.setFrameShape(QFrame.HLine)
         h_line.setLineWidth(1)
