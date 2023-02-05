@@ -1,5 +1,4 @@
 import os
-from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -12,8 +11,11 @@ class main_window(QMainWindow):
 
         # Create variables for filepaths, combobox choices etc.
         self.file_path = ""
-        self.rename_type = 1
+        self.rename_type = QComboBox()
         self.start_number = 1
+
+        self.season_pick_label = QLabel("What Season is this?")
+        self.season_pick = QSpinBox()
 
         self.file_label = QLabel()
 
@@ -32,6 +34,13 @@ class main_window(QMainWindow):
     def create_vlayout(self):   # Creates the interactions in central widget
         vbox = QVBoxLayout(self)
         vbox.addLayout(self.choose_folder())
+        vbox.addSpacing(20)
+        vbox.addWidget(self.horizontal_line())
+        vbox.addSpacing(20)
+        vbox.addLayout(self.settings_layout())
+        vbox.addSpacing(20)
+        vbox.addWidget(self.horizontal_line())
+        vbox.addSpacing(20)
         vbox.addWidget(self.output_log())
         return vbox
 
@@ -55,11 +64,77 @@ class main_window(QMainWindow):
 
         return hbox
 
+    def settings_layout(self):
+
+        vbox_settings = QVBoxLayout()
+
+        title = QLabel("Settings")
+
+        font = QFont()
+        font.setBold(True)
+        font.setPointSize(16)
+
+        title.setFont(font)
+
+        vbox_settings.addWidget(title)
+        vbox_settings.addLayout(self.choose_rename_type())
+
+        return vbox_settings
+
+    def choose_rename_type(self):
+        # 0 will be in the form of SxxEyy
+        # 1 is sequential starting from 1. i.e. Episode 1 etc.
+        hbox = QHBoxLayout()
+
+        rename_label = QLabel()
+        rename_label.setFont(QFont("Serif", 10))
+        rename_label.setText("Rename Scheme: ")
+
+        self.rename_type.addItem("Seasonal [SxxEyy]")
+        self.rename_type.addItem("Sequential [Episode X]")
+        self.rename_type.activated.connect(self.show_season)
+
+        self.season_pick_label.setFont(QFont("Serif", 10))
+
+        hbox.addWidget(rename_label)
+        hbox.addWidget(self.rename_type)
+        hbox.addWidget(self.season_pick_label)
+        hbox.addWidget(self.season_pick)
+        hbox.addStretch(1)
+
+        return hbox
+
+
+
+    def horizontal_line(self):
+        h_line = QFrame()
+        h_line.setFrameShape(QFrame.HLine)
+        h_line.setLineWidth(1)
+        return h_line
     def output_log(self):
         output_field = QTextEdit()
         output_field.setReadOnly(True)
         output_field.setLineWrapColumnOrWidth(True)
+
+        font = QFont()
+        font.setFamily("Serif")
+        font.setPointSize(12)
+
+        output_field.setFont(font)
+
+        scroll_bar = output_field.verticalScrollBar()
+        scroll_bar.setValue(scroll_bar.maximum())
+
+        output_field.setPlaceholderText("Output Logs")
         return output_field
+
+    def show_season(self):
+        if (self.rename_type.currentIndex() == 0):
+            self.season_pick_label.show()
+            self.season_pick.show()
+        else:
+            self.season_pick_label.hide()
+            self.season_pick.hide()
 
     def select_directory(self):
         directory = QFileDialog.getExistingDirectory(self, "Select Directory")
