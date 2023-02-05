@@ -11,10 +11,13 @@ class main_window(QMainWindow):
 
         # Create variables for filepaths, combobox choices etc.
         self.file_path = ""
-        self.rename_type = QComboBox()
         self.start_number = 1
+
+        self.test_output = QCheckBox()
+
         self.show_name = QLineEdit()
 
+        self.rename_type = QComboBox()
         self.season_pick_label = QLabel("What Season is this?")
         self.season_pick = QSpinBox()
 
@@ -77,10 +80,17 @@ class main_window(QMainWindow):
 
         title.setFont(font)
 
+        self.test_output.setToolTip("Enable this if you want to test the output.")
+        self.test_output.setText("Test Output")
+        self.test_output.setFont(QFont("Serif", 10))
+        self.test_output.setMaximumWidth(150)
+
         vbox_settings.addWidget(title)
         vbox_settings.addLayout(self.choose_rename_type())
         vbox_settings.addSpacing(10)
         vbox_settings.addLayout(self.rename_to())
+        vbox_settings.addSpacing(10)
+        vbox_settings.addWidget(self.test_output)
 
 
         return vbox_settings
@@ -128,6 +138,7 @@ class main_window(QMainWindow):
         h_line.setLineWidth(1)
         return h_line
     def output_log(self):
+        # Field for any kind of output
         output_field = QTextEdit()
         output_field.setReadOnly(True)
         output_field.setLineWrapColumnOrWidth(True)
