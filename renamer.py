@@ -1,12 +1,14 @@
 import os
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-
+import qdarktheme
 
 class main_window(QMainWindow):
 
     def __init__(self):
         super(main_window, self).__init__()
+
+        qdarktheme.setup_theme("dark")
 
         # Create variables for items that need info retrieved
 
@@ -87,7 +89,7 @@ class main_window(QMainWindow):
         self.test_output.setMaximumWidth(150)
 
         execute = QPushButton("Execute Renamer")
-        execute.setMaximumWidth(100)
+        execute.setMaximumWidth(110)
         execute.clicked.connect(self.rename_click)
 
 
