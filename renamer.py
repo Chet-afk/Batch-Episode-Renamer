@@ -1,7 +1,6 @@
 import os
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
 
 
 class main_window(QMainWindow):
@@ -9,9 +8,7 @@ class main_window(QMainWindow):
     def __init__(self):
         super(main_window, self).__init__()
 
-        # Create variables for filepaths, combobox choices etc.
-        self.file_path = ""
-        self.start_number = 1
+        # Create variables for items that need info retrieved
 
         self.test_output = QCheckBox()
 
@@ -22,6 +19,8 @@ class main_window(QMainWindow):
         self.season_pick = QSpinBox()
 
         self.file_label = QLabel()
+
+        self.output_field = QTextEdit()
 
         self.setWindowTitle("Batch Renamer")
 
@@ -37,6 +36,7 @@ class main_window(QMainWindow):
 
     def create_vlayout(self):   # Creates the interactions in central widget
         vbox = QVBoxLayout(self)
+        vbox.addSpacing(20)
         vbox.addLayout(self.choose_folder())
         vbox.addSpacing(20)
         vbox.addWidget(self.horizontal_line())
@@ -45,14 +45,14 @@ class main_window(QMainWindow):
         vbox.addSpacing(20)
         vbox.addWidget(self.horizontal_line())
         vbox.addSpacing(20)
-        vbox.addWidget(self.output_log())
+        vbox.addLayout(self.output_log())
         return vbox
 
     def choose_folder(self):
         hbox = QHBoxLayout()
 
         btn = QPushButton("Choose Folder", self)
-        btn.clicked.connect(self.select_directory) # Connect button to begin renaming.
+        btn.clicked.connect(self.select_directory)
         btn.setMaximumWidth(100)
 
         font = QFont()
@@ -85,12 +85,22 @@ class main_window(QMainWindow):
         self.test_output.setFont(QFont("Serif", 10))
         self.test_output.setMaximumWidth(150)
 
+        execute = QPushButton("Execute Renamer")
+        execute.setMaximumWidth(100)
+        execute.clicked.connect(self.rename_click)
+
+
+
         vbox_settings.addWidget(title)
+        vbox_settings.addSpacing(10)
         vbox_settings.addLayout(self.choose_rename_type())
         vbox_settings.addSpacing(10)
         vbox_settings.addLayout(self.rename_to())
         vbox_settings.addSpacing(10)
         vbox_settings.addWidget(self.test_output)
+        vbox_settings.addSpacing(10)
+        vbox_settings.addWidget(execute)
+
 
 
         return vbox_settings
@@ -124,9 +134,11 @@ class main_window(QMainWindow):
         show_name_label = QLabel("Enter the show name:")
         show_name_label.setFont(QFont("Serif", 10))
         self.show_name.setPlaceholderText("E.g. Overlord, Gravity Falls, Wednesday, etc.")
+        self.show_name.setMinimumWidth(250)
 
         hbox.addWidget(show_name_label)
         hbox.addWidget(self.show_name)
+        hbox.addStretch(1)
 
         return hbox
 
@@ -139,21 +151,43 @@ class main_window(QMainWindow):
         return h_line
     def output_log(self):
         # Field for any kind of output
-        output_field = QTextEdit()
-        output_field.setReadOnly(True)
-        output_field.setLineWrapColumnOrWidth(True)
+
+        vbox_all = QVBoxLayout()
+        hbox_buttons = QHBoxLayout()
+
+        clear_log = QPushButton("Clear Logs")
+        clear_log.setMaximumWidth(100)
+        clear_log.clicked.connect(self.clear_log)
+
+        list_files = QPushButton("List Files in Directory")
+        list_files.setMaximumWidth(150)
+        list_files.clicked.connect(self.list_items)
+
+        hbox_buttons.addWidget(clear_log)
+        hbox_buttons.addWidget(list_files)
+
+        self.output_field.setReadOnly(True)
+        self.output_field.setLineWrapColumnOrWidth(True)
 
         font = QFont()
         font.setFamily("Serif")
-        font.setPointSize(12)
+        font.setPointSize(10)
 
-        output_field.setFont(font)
+        self.output_field.setFont(font)
 
-        scroll_bar = output_field.verticalScrollBar()
+        scroll_bar = self.output_field.verticalScrollBar()
         scroll_bar.setValue(scroll_bar.maximum())
 
-        output_field.setPlaceholderText("Output Logs")
-        return output_field
+        self.output_field.setPlaceholderText("Output Logs")
+
+        vbox_all.addLayout(hbox_buttons)
+        vbox_all.addSpacing(20)
+        vbox_all.addWidget(self.output_field)
+
+        return vbox_all
+
+    def clear_log(self):
+        self.output_field.clear()
 
     def show_season(self):
         if (self.rename_type.currentIndex() == 0):
@@ -166,20 +200,38 @@ class main_window(QMainWindow):
     def select_directory(self):
         directory = QFileDialog.getExistingDirectory(self, "Select Directory")
         if not (directory == ""):
-            self.file_path = directory
+            os.chdir(directory)
             self.file_label.setText(directory)
+            self.output_field.append("Moved to " + directory + "\n")
+            self.line_break()
 
+    def list_items(self):
+        try:
+            for each_item in os.listdir("."):
+
+                if (os.path.isdir(each_item)):
+                    self.output_field.append(each_item + " is a directory\n")
+                else:
+                    self.output_field.append(each_item +"\n")
+
+            self.line_break()
+        except:
+            self.output_field.append("Error: Could not list files in directory - " + os.getcwd())
+            self.line_break()
+
+    def line_break(self):
+        # Helper function for line breaking after output is written
+        self.output_field.append("--------------------------\n")
 
     def rename_click(self):
-        file_path = input("Please enter file path: ")
-        os.chdir(file_path)
-        cwd = os.getcwd()
 
-        print("\nCurrent Directory: " + cwd + "\n")
+        self.output_field.clear()
+
+        os.chdir(self.file_path)
 
         files = os.listdir(".")
 
-        renamed = input("What would you like to rename the files to?: ").strip()
+        renamed = self.show_name.text().strip()
 
         fileType = input("What is the file extension? (i.e .mkv, .mp4): ").strip()
 
