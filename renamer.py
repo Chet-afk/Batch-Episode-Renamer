@@ -11,6 +11,7 @@ class main_window(QMainWindow):
         # Create variables for items that need info retrieved
 
         self.test_output = QCheckBox()
+        self.test_output.setChecked(True)
 
         self.show_name = QLineEdit()
 
@@ -207,12 +208,15 @@ class main_window(QMainWindow):
 
     def list_items(self):
         try:
+
+            self.output_field.append("Listing items in directory...\n")
+
             for each_item in os.listdir("."):
 
                 if (os.path.isdir(each_item)):
                     self.output_field.append(each_item + " is a directory\n")
                 else:
-                    self.output_field.append(each_item +"\n")
+                    self.output_field.append(each_item + "\n")
 
             self.line_break()
         except:
@@ -225,31 +229,43 @@ class main_window(QMainWindow):
 
     def rename_click(self):
 
-        self.output_field.clear()
-
-        os.chdir(self.file_path)
-
-        files = os.listdir(".")
-
         renamed = self.show_name.text().strip()
-
-        fileType = input("What is the file extension? (i.e .mkv, .mp4): ").strip()
+        rename_type = self.rename_type.currentIndex() # 0 is SxxEyy, 1 is sequential
 
         epNum = 1
 
-        for each_file in files:
-
+        for each_file in os.listdir("."):
             if os.path.isdir(each_file):
-                print("\"" + each_file + "\"", "is a directory.")
-
                 continue
 
-            print("\n" + each_file, "is being renamed to: " + renamed + " Episode " + str(epNum).zfill(
-                2) + fileType)  # .zfill puts it to at least 2 digits for single digits
+            file_type = "." + each_file.split(".")[-1]
+            start_of_string = each_file + " is being renamed to: "
 
-            os.rename(each_file, renamed + " Episode " + str(epNum).zfill(
-                2) + fileType)  # Rename instead of Replace so program stops if it tries to replace itself
+            match(rename_type):
+                # Case SxxEyy
+                case 0:
+                    season = self.season_pick.value()
+                    self.output_field.append(start_of_string + renamed + " S" + str(season).zfill(2) +
+                                     "E" + str(epNum).zfill(2) + file_type + "\n")
+
+                    if not self.test_output.isChecked():
+                        os.rename(each_file, renamed + " S" + str(season).zfill(2) +
+                                     "E" + str(epNum).zfill(2) + file_type)
+
+                case 1:
+                    # .zfill puts it to at least 2 digits for single digits
+                    self.output_field.append(start_of_string + renamed +
+                                     " Episode " + str(epNum).zfill(2) + file_type + "\n")
+                    if not self.test_output.isChecked():
+                        os.rename(each_file, renamed +
+                                     " Episode " + str(epNum).zfill(2) + file_type)
+
+
+            # os.rename(each_file, renamed + " Episode " + str(epNum).zfill(
+            #     2) + file_type)  # Rename instead of Replace so program stops if it tries to replace itself
             epNum += 1
+
+        self.line_break()
 
 
 def main():
